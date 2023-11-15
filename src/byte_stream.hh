@@ -1,10 +1,12 @@
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
 #include <queue>
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <sys/types.h>
 
 class Reader;
 class Writer;
@@ -14,7 +16,11 @@ class ByteStream
 protected:
   uint64_t capacity_;
   // Please add any additional state to the ByteStream here, and not to the Writer and Reader interfaces.
-
+  std::queue<char> queue;
+  bool push_end;
+  bool push_error;
+  uint64_t push_size;
+  uint64_t pop_size;
 public:
   explicit ByteStream( uint64_t capacity );
 
