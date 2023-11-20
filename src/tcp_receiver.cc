@@ -1,10 +1,13 @@
 #include "tcp_receiver.hh"
+#include "tcp_receiver_message.hh"
+#include "wrapping_integers.hh"
 
 using namespace std;
 
 void TCPReceiver::receive( TCPSenderMessage message, Reassembler& reassembler, Writer& inbound_stream )
 {
-  // Your code here.
+  
+  // message.seqno
   (void)message;
   (void)reassembler;
   (void)inbound_stream;
@@ -12,7 +15,8 @@ void TCPReceiver::receive( TCPSenderMessage message, Reassembler& reassembler, W
 
 TCPReceiverMessage TCPReceiver::send( const Writer& inbound_stream ) const
 {
-  // Your code here.
-  (void)inbound_stream;
-  return {};
+  TCPReceiverMessage receivermessage;
+  // Wrap32 wrap;
+  receivermessage.window_size =  inbound_stream.available_capacity();
+  return receivermessage;
 }

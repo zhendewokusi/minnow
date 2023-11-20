@@ -11,6 +11,7 @@
 class Wrap32
 {
 protected:
+  // 存储的是当前对象的相对序列号值
   uint32_t raw_value_ {};
 
 public:
