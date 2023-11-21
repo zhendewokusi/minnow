@@ -1,13 +1,13 @@
 #include "tcp_receiver.hh"
 #include "tcp_receiver_message.hh"
 #include "wrapping_integers.hh"
+#include <functional>
 
 using namespace std;
 
 void TCPReceiver::receive( TCPSenderMessage message, Reassembler& reassembler, Writer& inbound_stream )
 {
   
-  // message.seqno
   (void)message;
   (void)reassembler;
   (void)inbound_stream;
