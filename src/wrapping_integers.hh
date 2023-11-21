@@ -15,6 +15,7 @@ protected:
   uint32_t raw_value_ {};
 
 public:
+  Wrap32()  = default;
   explicit Wrap32( uint32_t raw_value ) : raw_value_( raw_value ) {}
 
   /* Construct a Wrap32 given an absolute sequence number n and the zero point. */
