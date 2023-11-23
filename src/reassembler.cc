@@ -95,6 +95,7 @@ void Reassembler::insert( uint64_t first_index, string data, bool is_last_substr
   // 将新数据插入到 map 中
   if ( !data.empty() ) {
     unassembled_bytes_ += data.size();
+    cout << new_index << " + " << data << '\n' ; 
     unassembled_substrings_.insert( make_pair( new_index, std::move( data ) ) );
   }
   // 输出给 Writer
@@ -103,6 +104,7 @@ void Reassembler::insert( uint64_t first_index, string data, bool is_last_substr
     if ( sub_index == unassembled_index_ ) {
       const uint64_t prev_bytes_pushed = output.bytes_pushed();
       output.push( sub_data );
+      
       const uint64_t bytes_pushed = output.bytes_pushed();
       if ( bytes_pushed != prev_bytes_pushed + sub_data.size() ) {
 
