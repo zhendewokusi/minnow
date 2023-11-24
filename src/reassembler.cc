@@ -95,16 +95,19 @@ void Reassembler::insert( uint64_t first_index, string data, bool is_last_substr
   // 将新数据插入到 map 中
   if ( !data.empty() ) {
     unassembled_bytes_ += data.size();
-    cout << new_index << " + " << data << '\n' ; 
+    cout << new_index << " + " << data << '+' << first_index << '\n' ; 
     unassembled_substrings_.insert( make_pair( new_index, std::move( data ) ) );
   }
   // 输出给 Writer
   for ( auto iter = unassembled_substrings_.begin(); iter != unassembled_substrings_.end();) {
     auto& [sub_index, sub_data] = *iter;
+    cout << sub_index << '+' << unassembled_index_ << '\n';
     if ( sub_index == unassembled_index_ ) {
       const uint64_t prev_bytes_pushed = output.bytes_pushed();
       output.push( sub_data );
-      
+      cout << "-----------------------" << '\n';
+      cout << sub_data << '\n';
+      cout << "-----------------------" << '\n';
       const uint64_t bytes_pushed = output.bytes_pushed();
       if ( bytes_pushed != prev_bytes_pushed + sub_data.size() ) {
 
@@ -128,6 +131,12 @@ void Reassembler::insert( uint64_t first_index, string data, bool is_last_substr
   if ( is_closed() ) {
     output.close();
   }
+  // cout << "-----------------------" << '\n';
+  // cout << new_index << '\n';
+  // for (const auto& pair : unassembled_substrings_) {
+  //     std::cout << "Key: " << pair.first << ", Value: " << pair.second << std::endl;
+  // }
+  // cout << "-----------------------" << '\n';
 }
 
 uint64_t Reassembler::bytes_pending() const

@@ -25,7 +25,9 @@ void TCPReceiver::receive( TCPSenderMessage message, Reassembler& reassembler, W
   uint64_t seq = Wrap32(message.seqno).unwrap(zero_point,checkpoint);
   // 可能来的FIN包是非法的，因此不能将其防止在上面包的 if 判断中
   if (message.FIN) {  is_fin = true;  }
+  // 这里 -1 是因为 reassembler 的 unassembled_index_ 是从 0 开始的，如果加 SYN 就从 1 开始传参，不能将其重组
   reassembler.insert(seq + message.SYN - 1,message.payload,is_fin,inbound_stream);
+  // reassembler.insert(seq + is_syn - 1,message.payload,is_fin,inbound_stream);
 }
 
 TCPReceiverMessage TCPReceiver::send( const Writer& inbound_stream ) const
