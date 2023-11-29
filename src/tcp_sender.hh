@@ -3,6 +3,8 @@
 #include "byte_stream.hh"
 #include "tcp_receiver_message.hh"
 #include "tcp_sender_message.hh"
+#include "retran_timer.hh"
+
 #include <cstdint>
 
 class TCPSender
@@ -17,8 +19,13 @@ class TCPSender
   uint64_t outstanding_cnt_ { 0 };
   uint64_t window_size_ { 1 }; // 窗口大小
   uint64_t next_seq_ { 0 };    // 下一个序列号
-  uint64_t ack_seq_ { 0 };
+  uint64_t ack_seq_ { 0 };     // 确认号
+  ReTimer retimer_{initial_RTO_ms_};  // 定时器
 
+  // 传输中
+  std::queue<TCPSenderMessage> outstanding_segments_ {};
+  // 需要发送
+  std::queue<TCPSenderMessage> queued_segments_ {};
 public:
   /* Construct TCP sender with given default Retransmission Timeout and possible ISN */
   TCPSender( uint64_t initial_RTO_ms, std::optional<Wrap32> fixed_isn );

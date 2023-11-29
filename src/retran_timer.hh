@@ -24,7 +24,7 @@ public:
             time_ms_ += ms_since_last_tick;
         }
     }
-
+    bool is_running() const {   return running_;    }
     // 超时
     bool is_timeout() const {   return running_ && (time_ms_ >= timeout_);  }
     // 定时器运行结束
