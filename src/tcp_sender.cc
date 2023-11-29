@@ -38,15 +38,15 @@ void TCPSender::push( Reader& outbound_stream )
 // 发送空消息
 TCPSenderMessage TCPSender::send_empty_message() const
 {
-  auto seqno = Wrap32::wrap(next_seq_, Wrap32(isn_));
-  return {seqno,false,{},false};
+  auto seqno = Wrap32::wrap( next_seq_, Wrap32( isn_ ) );
+  return { seqno, false, {}, false };
 }
 
 void TCPSender::receive( const TCPReceiverMessage& msg )
 {
   window_size_ = msg.window_size;
-  if(msg.ackno.has_value()){
-    ack_seq_ = msg.ackno.value().unwrap(Wrap32(isn_),next_seq_);
+  if ( msg.ackno.has_value() ) {
+    ack_seq_ = msg.ackno.value().unwrap( Wrap32( isn_ ), next_seq_ );
   }
 }
 

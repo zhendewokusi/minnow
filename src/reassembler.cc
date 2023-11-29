@@ -16,10 +16,9 @@ void Reassembler::insert( uint64_t first_index, string data, bool is_last_substr
     closed_ = true;
   }
 
-  if ( first_index >= unassembled_index_ + output.available_capacity() ||
-       first_index + data.length() - 1 < unassembled_index_ ||
-       data.empty() ||
-       output.available_capacity() == 0 ) {
+  if ( first_index >= unassembled_index_ + output.available_capacity()
+       || first_index + data.length() - 1 < unassembled_index_ || data.empty()
+       || output.available_capacity() == 0 ) {
     if ( is_closed() ) {
       output.close();
     }
@@ -35,13 +34,13 @@ void Reassembler::insert( uint64_t first_index, string data, bool is_last_substr
     const uint64_t overlapped_length = unassembled_index_ - first_index;
     data = data.substr( overlapped_length, min( data.size() - overlapped_length, cap ) );
   } else {
-  // 右边边界处理
+    // 右边边界处理
     data = data.substr( 0, min( data.size(), cap ) );
     if ( first_index + data.size() - 1 > unassembled_index_ + cap - 1 ) {
       data = data.substr( 0, unassembled_index_ + cap - first_index );
     }
   }
-  //内部调整
+  // 内部调整
   auto rear_iter = unassembled_substrings_.lower_bound( new_index );
   while ( rear_iter != unassembled_substrings_.end() ) {
     auto& [rear_index, rear_data] = *rear_iter;
@@ -62,7 +61,7 @@ void Reassembler::insert( uint64_t first_index, string data, bool is_last_substr
       unassembled_bytes_ -= rear_data.size();
       unassembled_substrings_.erase( rear_index );
     } else {
-    // 如果部分重合则删除data中的重合部分
+      // 如果部分重合则删除data中的重合部分
       data.erase( data.end() - static_cast<int64_t>( rear_overlapped_length ), data.end() );
     }
     // 接着处理下一个可能有重合的元素
@@ -95,11 +94,11 @@ void Reassembler::insert( uint64_t first_index, string data, bool is_last_substr
   // 将新数据插入到 map 中
   if ( !data.empty() ) {
     unassembled_bytes_ += data.size();
-    cout << new_index << " + " << data << '+' << first_index << '\n' ; 
+    cout << new_index << " + " << data << '+' << first_index << '\n';
     unassembled_substrings_.insert( make_pair( new_index, std::move( data ) ) );
   }
   // 输出给 Writer
-  for ( auto iter = unassembled_substrings_.begin(); iter != unassembled_substrings_.end();) {
+  for ( auto iter = unassembled_substrings_.begin(); iter != unassembled_substrings_.end(); ) {
     auto& [sub_index, sub_data] = *iter;
     cout << sub_index << '+' << unassembled_index_ << '\n';
     if ( sub_index == unassembled_index_ ) {

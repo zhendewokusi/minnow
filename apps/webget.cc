@@ -11,15 +11,15 @@ using namespace std;
 
 void get_URL( const string& host, const string& path )
 {
-  Address addr(host,"http");
+  Address addr( host, "http" );
   TCPSocket tcp;
-  tcp.connect(addr);
-  tcp.write("GET " + path + " HTTP/1.1\r\n");
-  tcp.write("HOST: " + host + "\r\n");
-  tcp.write("Connection: close\r\n\r\n");
+  tcp.connect( addr );
+  tcp.write( "GET " + path + " HTTP/1.1\r\n" );
+  tcp.write( "HOST: " + host + "\r\n" );
+  tcp.write( "Connection: close\r\n\r\n" );
   string payload;
-  while(!tcp.eof()){
-    tcp.read(payload);
+  while ( !tcp.eof() ) {
+    tcp.read( payload );
     cout << payload;
     payload.clear();
   }

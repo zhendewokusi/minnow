@@ -21,6 +21,7 @@ protected:
   bool push_error;
   uint64_t push_size;
   uint64_t pop_size;
+
 public:
   explicit ByteStream( uint64_t capacity );
 

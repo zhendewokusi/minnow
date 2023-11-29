@@ -21,5 +21,3 @@ public:
   size_t length() const { return buffer_->length(); }
   bool empty() const { return buffer_->empty(); }
 };
-
-

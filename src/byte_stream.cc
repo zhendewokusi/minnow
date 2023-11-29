@@ -7,22 +7,18 @@
 
 using namespace std;
 
-ByteStream::ByteStream(uint64_t capacity)
-    : capacity_(capacity),
-      queue(),
-      push_end(false),
-      push_error(false),
-      push_size(0),
-      pop_size(0) {
-    // 构造函数的函数体
-    // ...
+ByteStream::ByteStream( uint64_t capacity )
+  : capacity_( capacity ), queue(), push_end( false ), push_error( false ), push_size( 0 ), pop_size( 0 )
+{
+  // 构造函数的函数体
+  // ...
 }
 
 void Writer::push( string data )
 {
-  uint64_t len = min(data.size(),capacity_ - queue.size());
-  for(uint64_t i = 0;i < len;i++){
-    queue.push(data[i]);
+  uint64_t len = min( data.size(), capacity_ - queue.size() );
+  for ( uint64_t i = 0; i < len; i++ ) {
+    queue.push( data[i] );
     push_size++;
   }
 }
@@ -54,8 +50,9 @@ uint64_t Writer::bytes_pushed() const
 
 std::string_view Reader::peek() const
 {
-  if (queue.empty())  return {};
-  std::string_view view(&queue.front(), 1);
+  if ( queue.empty() )
+    return {};
+  std::string_view view( &queue.front(), 1 );
   return view;
 }
 bool Reader::is_finished() const
@@ -68,10 +65,10 @@ bool Reader::has_error() const
   return push_size != pop_size || push_error;
 }
 
-void Reader::pop(uint64_t len)
+void Reader::pop( uint64_t len )
 {
-  uint64_t pop_len = min(len, queue.size());
-  for (uint64_t i = 0; i < pop_len; i++) {
+  uint64_t pop_len = min( len, queue.size() );
+  for ( uint64_t i = 0; i < pop_len; i++ ) {
     queue.pop();
     pop_size++;
   }
