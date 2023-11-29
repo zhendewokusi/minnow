@@ -6,10 +6,7 @@
 #include <cstddef>
 #include <random>
 #include <string>
-#include <iostream>
-
-
-loglog
+#include <cstdio>
 
 using namespace std;
 /*
@@ -19,8 +16,7 @@ using namespace std;
 
 /* TCPSender constructor (uses a random ISN if none given) */
 TCPSender::TCPSender( uint64_t initial_RTO_ms, optional<Wrap32> fixed_isn )
-  : isn_( fixed_isn.value_or( Wrap32 { random_device()() } ) ), initial_RTO_ms_( initial_RTO_ms )
-{}
+  : isn_( fixed_isn.value_or( Wrap32 { random_device()() } ) ), initial_RTO_ms_( initial_RTO_ms ){}
 
 uint64_t TCPSender::sequence_numbers_in_flight() const {return outstanding_cnt_;}
 uint64_t TCPSender::consecutive_retransmissions() const {return retransmission_cnt_;}
@@ -47,12 +43,18 @@ void TCPSender::push( Reader& outbound_stream )
   size_t curr_window_size = window_size_ != 0 ? window_size_ : 1;
   // 从Reader流获取Message
   TCPSenderMessage msg;
+  if(!is_SYN_){
+    is_SYN_ = msg.SYN = true;
+    outstanding_cnt_++;
+  }
   const auto payload_size = min( TCPConfig::MAX_PAYLOAD_SIZE, curr_window_size - outstanding_cnt_ );
   msg.seqno = Wrap32::wrap(next_seq_, isn_);
   read(outbound_stream,payload_size,msg.payload);
   outstanding_cnt_ += payload_size;
   
   queued_segments_.push(msg);
+  next_seq_ += msg.sequence_length();
+  outstanding_segments_.push(msg);
 }
 
 // 发送空消息
