@@ -60,7 +60,7 @@ void TCPSender::push( Reader& outbound_stream )
     read( outbound_stream, payload_size, msg.payload );
     outstanding_cnt_ += msg.payload.size();
 
-    if (msg.sequence_length() == 0) {
+    if ( msg.sequence_length() == 0 ) {
       break;
     }
 
@@ -85,8 +85,12 @@ void TCPSender::receive( const TCPReceiverMessage& msg )
   }
   while ( !outstanding_segments_.empty() ) {
     auto front_msg = outstanding_segments_.front();
-    outstanding_cnt_ -= front_msg.sequence_length();
-    outstanding_segments_.pop();
+    if ( front_msg.seqno.unwrap( isn_, next_seq_ ) + front_msg.sequence_length() <= ack_seq_ ) {
+      outstanding_cnt_ -= front_msg.sequence_length();
+      outstanding_segments_.pop();
+    } else {
+      break;
+    }
   }
 }
 
