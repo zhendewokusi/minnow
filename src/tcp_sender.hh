@@ -9,6 +9,7 @@
 
 class TCPSender
 {
+private:
   bool is_SYN_ { false };
   bool is_FIN_ { false };
 
