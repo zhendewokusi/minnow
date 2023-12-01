@@ -86,15 +86,31 @@ void TCPSender::receive( const TCPReceiverMessage& msg )
   while ( !outstanding_segments_.empty() ) {
     auto front_msg = outstanding_segments_.front();
     if ( front_msg.seqno.unwrap( isn_, next_seq_ ) + front_msg.sequence_length() <= ack_seq_ ) {
+
       outstanding_cnt_ -= front_msg.sequence_length();
       outstanding_segments_.pop();
+      retimer_.RTO_reset();
+      retransmission_cnt_ = 0;  // 接收到消息后应该将重传次数归零，和后续消息无关
+      if (!outstanding_segments_.empty()) {
+        retimer_.start();
+      }
     } else {
       break;
     }
+  }
+  if (outstanding_segments_.empty()) {
+    retimer_.stop();
   }
 }
 
 void TCPSender::tick( const size_t ms_since_last_tick )
 {
   retimer_.tick( ms_since_last_tick );
+  if (retimer_.is_timeout()) {
+    queued_segments_.push(outstanding_segments_.front());
+    
+    {retimer_.RTO_double();
+    retransmission_cnt_++;}
+    retimer_.start();
+  }
 }

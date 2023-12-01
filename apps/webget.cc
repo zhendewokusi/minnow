@@ -20,7 +20,7 @@ void get_URL( const string& host, const string& path )
   string payload;
   while ( !tcp.eof() ) {
     tcp.read( payload );
-    cout << payload;
+    // cout << payload;
     payload.clear();
   }
   tcp.closed();
