@@ -60,6 +60,12 @@ void TCPSender::push( Reader& outbound_stream )
     read( outbound_stream, payload_size, msg.payload );
     outstanding_cnt_ += msg.payload.size();
 
+    // FIN判断应该在 msg.sequence_length() == 0 前面 send_window.cc
+    if (!is_FIN_ && outbound_stream.is_finished() && outstanding_cnt_ < curr_window_size) {
+      is_FIN_ = msg.FIN = true;
+      outstanding_cnt_++;
+    }
+
     if ( msg.sequence_length() == 0 ) {
       break;
     }
@@ -67,6 +73,10 @@ void TCPSender::push( Reader& outbound_stream )
     queued_segments_.push( msg );
     next_seq_ += msg.sequence_length();
     outstanding_segments_.push( msg );
+
+    if (msg.FIN || outbound_stream.bytes_buffered() == 0) {
+      break;
+    }
   }
 }
 
@@ -81,7 +91,9 @@ void TCPSender::receive( const TCPReceiverMessage& msg )
 {
   window_size_ = msg.window_size;
   if ( msg.ackno.has_value() ) {
-    ack_seq_ = msg.ackno.value().unwrap( Wrap32( isn_ ), next_seq_ );
+    auto tmp_ack_seq_ = msg.ackno.value().unwrap( Wrap32( isn_ ), next_seq_ );
+    if(tmp_ack_seq_ > next_seq_)  {return;}
+    ack_seq_ = tmp_ack_seq_;
   }
   while ( !outstanding_segments_.empty() ) {
     auto front_msg = outstanding_segments_.front();
@@ -90,7 +102,7 @@ void TCPSender::receive( const TCPReceiverMessage& msg )
       outstanding_cnt_ -= front_msg.sequence_length();
       outstanding_segments_.pop();
       retimer_.RTO_reset();
-      retransmission_cnt_ = 0;  // 接收到消息后应该将重传次数归零，和后续消息无关
+      retransmission_cnt_ = 0;  // 接收到消息后应该将重传次数归零，和后续消息无关 send_retx.cc
       if (!outstanding_segments_.empty()) {
         retimer_.start();
       }
@@ -108,9 +120,8 @@ void TCPSender::tick( const size_t ms_since_last_tick )
   retimer_.tick( ms_since_last_tick );
   if (retimer_.is_timeout()) {
     queued_segments_.push(outstanding_segments_.front());
-    
-    {retimer_.RTO_double();
-    retransmission_cnt_++;}
+    retimer_.RTO_double();
+    retransmission_cnt_++;
     retimer_.start();
   }
 }
